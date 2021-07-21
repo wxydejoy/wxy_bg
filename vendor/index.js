@@ -20,10 +20,90 @@ var renderer,
     move_bg,
     bass_wireframe;
 
+window.wallpaperPropertyListener = {
+    applyUserProperties: function (properties) {
+
+        function getRgb(prop) {
+            var customColor = prop
+                .value
+                .split(' ');
+            customColor = customColor.map(function (c) {
+                return Math.ceil(c * 255);
+            });
+            return 'rgb(' + customColor + ')';
+        }
+
+        if (primaryColor === null) {
+            primaryColor = getRgb(properties.primary_color)
+        }
+
+        if (secondaryColor === null) {
+            secondaryColor = getRgb(properties.secondary_color)
+        }
+
+        if (thirdColor === null) {
+            thirdColor = getRgb(properties.third_color)
+        }
+
+        if (properties.primary_color) {
+            primaryColor = getRgb(properties.primary_color)
+            setBackground()
+        }
+
+        if (properties.secondary_color) {
+            secondaryColor = getRgb(properties.secondary_color)
+            setBackground()
+        }
+
+        if (properties.third_color) {
+            thirdColor = getRgb(properties.third_color)
+            setBackground()
+        }
+
+        if (properties.user_audio_amp) {
+            var n = properties.user_audio_amp.value;
+            if (n <= 10) {
+                n = "0" + n
+            }
+            user_audio_amp = n
+        }
+
+        if (properties.audio_wireframe) {
+            audio_wireframe = properties.audio_wireframe.value
+        }
+
+        if (properties.move_background_bass) {
+            move_bg = properties.move_background_bass.value
+        }
+
+        if (properties.bass_wireframe) {
+            bass_wireframe = properties.bass_wireframe.value
+        }
+
+        if (properties.custom_image) {
+            bg_file = properties.custom_image.value
+            setBackground()
+        }
+
+        if (properties.cube_x) {
+            circle.position.x = skelet.position.x = properties.cube_x.value
+        }
+
+        if (properties.cube_y) {
+            circle.position.y = skelet.position.y = properties.cube_y.value
+        }
+
+        if (properties.cube_z) {
+            circle.position.z = skelet.position.z = properties.cube_z.value
+        }
+
+    }
+}
 
 window.onload = function () {
     init();
     animate();
+    window.wallpaperRegisterAudioListener(wallpaperAudioListener);
 }
 
 function rgb2hex(rgb) {
@@ -33,16 +113,71 @@ function rgb2hex(rgb) {
         : '';
 }
 
+function setBackground() {
+    var pC = primaryColor,
+        sC = secondaryColor,
+        tC = thirdColor;
 
+    lights[0]
+        .color
+        .setHex("0x".concat(rgb2hex(tC)))
+    lights[1]
+        .color
+        .setHex("0x".concat(rgb2hex(pC)))
+    lights[2]
+        .color
+        .setHex("0x".concat(rgb2hex(sC)))
+
+    var el = document.body
+    var currentStyle = el.getAttribute('style');
+
+    if (bg_file && bg_file !== "") {
+        img = {};
+        img.value = bg_file;
+        document.body.style.backgroundImage = "url('file:///".concat(img.value) + "')";
+    }
+
+    if (bg_file === "" || bg_file === undefined || bg_file === null) {
+        var styleText = 'background: -webkit-linear-gradient(top, ' + pC + ' 0%, ' + sC + ' 100%);background: -o-linear-gradient(top, ' + pC + ' 0%, ' + sC + ' 100%); background: -ms-linear-gradient(top, ' + pC + ' 0%,  ' + sC + ' 100%);background: linear-gradient(to bottom, ' + pC + ' 0%,  ' + sC + ' 100%);';
+
+        el.setAttribute('style', styleText);
+    }
+}
+
+function wallpaperAudioListener(audioArr) {
+    audioArray = audioArr;
+}
+
+function debug(write) {
+    if (write === undefined) {
+        write = 'undefined'
+    } else if (write === "") {
+        write = '""'
+    }
+    var debug = document.getElementById('info')
+    debug.innerHTML = write
+}
+
+function fractionate(val, minVal, maxVal) {
+    return (val - minVal) / (maxVal - minVal);
+}
+
+function modulate(val, minVal, maxVal, outMin, outMax) {
+    var fr = fractionate(val, minVal, maxVal);
+    var delta = outMax - outMin;
+    return outMin + (fr * delta);
+}
 
 function init() {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    
-    renderer.setSize(document.body.clientWidth, document.body.clientHeight);
-    // renderer.autoClear = false;
-    // renderer.setClearColor(0x000000, 0.0);
+    renderer.setPixelRatio((window.devicePixelRatio)
+        ? window.devicePixelRatio
+        : 1);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.autoClear = false;
+    renderer.setClearColor(0x000000, 0.0);
     document
-        .getElementById('web_bg')
+        .getElementById('canvas')
         .appendChild(renderer.domElement);
 
     scene = new THREE.Scene();
@@ -81,7 +216,7 @@ function init() {
         particle.add(mesh);
     }
 
-    var mat = new THREE.MeshPhongMaterial({ color: 0xcccccc, shading: THREE.FlatShading });
+    var mat = new THREE.MeshPhongMaterial({ color: 0xffffff, shading: THREE.FlatShading });
 
     var mat2 = new THREE.MeshPhongMaterial({ color: 0xffffff, wireframe: true, side: THREE.DoubleSide });
 
@@ -116,7 +251,15 @@ function init() {
     scene.add(lights[1]);
     scene.add(lights[2]);
 
+    window.addEventListener('resize', onWindowResize, false);
+
 };
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
 
 function moveObject(prop, math, num, timer = 0) {
     if (math === 'add') {
