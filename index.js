@@ -38,11 +38,11 @@ function rgb2hex(rgb) {
 function init() {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     
-    renderer.setSize(document.body.clientWidth, document.body.clientHeight);
+    renderer.setSize(document.body.clientWidth, document.body.clientHeight);//修改宽度高度
     // renderer.autoClear = false;
     // renderer.setClearColor(0x000000, 0.0);
     document
-        .getElementById('web_bg')
+        .getElementById('web_bg')//修改所在id
         .appendChild(renderer.domElement);
 
     scene = new THREE.Scene();
