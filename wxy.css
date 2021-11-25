@@ -282,19 +282,22 @@ body {
     background-color: #111
 }
 
-@media all and (min-width:569px) and (max-width:1366px) {
+@media all and (min-width:488px) and (max-width:1366px) {
     body {
         
-        font-size: 2.875rem
+        font-size: 1.4rem
     }
+
 }
 
-@media all and (max-width:568px) {
+@media all and (max-width:488px) {
     body {
-        font-size: 22px;
-        font-size: .75rem
+        
+        font-size: 2.2rem
     }
+     
 }
+
 
 body.is-opened-index {
     overflow: auto
@@ -439,14 +442,15 @@ a {
     padding-right: 1.25em;
     padding-left: 1.25em;
     border-radius: 1em;
-    border-width: 4px;
+    border-width: 2px;
     border-style: solid
 }
 
 
 
 .c-button--white {
-    border-color: #fff
+    border-color: #fff;
+    margin: 30px
 }
 
 .c-button--black {
@@ -1957,23 +1961,8 @@ a {
     letter-spacing: .05em
 }
 
-@media all and (min-width:1367px) {
-    .p-sketch-outline__title {
-        font-size: 150.26px
-    }
-}
 
-@media all and (min-width:569px) and (max-width:1366px) {
-    .p-sketch-outline__title {
-        font-size: 11vw
-    }
-}
 
-@media all and (max-width:568px) {
-    .p-sketch-outline__title {
-        font-size: 62.48px
-    }
-}
 
 .p-sketch-outline__date {
     line-height: 1;
@@ -2013,8 +2002,7 @@ a {
 .p-utility-menu {
     position: fixed;
     z-index: 100;
-    top: 25px;
-    right: 20px
+    right: 20px;
 }
 
 .p-website-outline {
